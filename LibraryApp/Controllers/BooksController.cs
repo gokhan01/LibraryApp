@@ -20,9 +20,18 @@ namespace LibraryApp.Controllers
         }
 
         // GET: Books
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? authorId)
         {
-            var applicationDbContext = _context.Books.Include(b => b.Author);
+            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "FullName", authorId);
+            ViewBag.BookPage = true;
+
+            var query = _context.Books.AsQueryable();
+
+            if (authorId != null)
+            {
+                query = query.Where(b => b.AuthorId == authorId);
+            }
+            var applicationDbContext = query.Include(b => b.Author);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -61,9 +70,16 @@ namespace LibraryApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(book);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (_context.Books.Any(b => b.AuthorId == book.AuthorId && b.Name.ToLower() == book.Name.ToLower()))
+                {
+                    ModelState.AddModelError("", "Girilen kitap bilgileri mevcuttur.");
+                }
+                else
+                {
+                    _context.Add(book);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
             ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "FullName", book.AuthorId);
             return View(book);

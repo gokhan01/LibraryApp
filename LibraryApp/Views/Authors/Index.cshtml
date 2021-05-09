@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<LibraryApp.Models.Author>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Yazarlar";
 }
 
-<h1>Index</h1>
+<h4>Yazarlar</h4>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Yazar Girişi</a>
 </p>
 <table class="table">
     <thead>
@@ -31,9 +31,9 @@
                 @Html.DisplayFor(modelItem => item.Surname)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
             </td>
         </tr>
 }

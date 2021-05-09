@@ -22,7 +22,7 @@ namespace LibraryApp.Controllers
         // GET: Authors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Authors.ToListAsync());
+            return View(await _context.Authors.Include(a => a.Books).ToListAsync());
         }
 
         // GET: Authors/Details/5
@@ -34,6 +34,7 @@ namespace LibraryApp.Controllers
             }
 
             var author = await _context.Authors
+                .Include(a => a.Books)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (author == null)
             {
@@ -58,6 +59,12 @@ namespace LibraryApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (_context.Authors.Any(a => a.Name.ToLower() == author.Name.ToLower() && a.Surname.ToLower() == author.Surname.ToLower()))
+                {
+                    ModelState.AddModelError("", "Girilen yazar bilgileri mevcuttur.");
+                    return View(author);
+                }
+
                 _context.Add(author);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

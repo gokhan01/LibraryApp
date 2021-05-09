@@ -20,9 +20,17 @@ namespace LibraryApp.Controllers
         }
 
         // GET: MemberBooks
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? memberId)
         {
-            var applicationDbContext = _context.MemberBooks.Include(m => m.Book).Include(m => m.Member);
+            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName", memberId);
+
+            var query = _context.MemberBooks.AsQueryable();
+
+            if (memberId != null)
+                query = query.Where(mb => mb.MemberId == memberId);
+
+            var applicationDbContext = query.Include(m => m.Book).Include(m => m.Member);
+
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -50,7 +58,7 @@ namespace LibraryApp.Controllers
         public IActionResult Create()
         {
             ViewData["BookId"] = new SelectList(_context.Books, "Id", "Name");
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "EMail");
+            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName");
             return View();
         }
 
@@ -63,12 +71,41 @@ namespace LibraryApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(memberBook);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var book = await _context.Books
+                    .Include(x => x.Author)
+                    .FirstOrDefaultAsync(b => b.Id == memberBook.BookId);
+                if (book == null)
+                    return NotFound();
+
+                var member = await _context.Members
+                    .Include(m => m.MemberBooks)
+                    .FirstOrDefaultAsync(m => m.Id == memberBook.MemberId);
+                if (member == null)
+                    return NotFound();
+
+                if (book.Quantity == 0)
+                {
+                    ModelState.AddModelError("", $"\"{book.Author.FullName} - {book.Name}\" adlı kitap mevcut değildir!");
+                }
+                else if (member.MemberBooks.Any(mb => mb.BookId == memberBook.BookId && !mb.IsTakenBack))
+                {
+                    ModelState.AddModelError("", $"\"{member.FullName}\" kullanıcısı \"{book.Name}\" adlı kitabı daha önce teslim almıştır!");
+                }
+                else if (member.MemberBooks.Count(b => !b.IsTakenBack) == 3)
+                {
+                    ModelState.AddModelError("", $"\"{member.FullName}\" kullanıcısı en fazla 3 adet kitap teslim alabilir!");
+                }
+                else
+                {
+                    book.Quantity--;
+                    _context.Update(book);
+
+                    _context.Add(memberBook);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Name", memberBook.BookId);
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "EMail", memberBook.MemberId);
+            FillDropdowns(memberBook);
             return View(memberBook);
         }
 
@@ -85,8 +122,7 @@ namespace LibraryApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Name", memberBook.BookId);
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "EMail", memberBook.MemberId);
+            FillDropdowns(memberBook);
             return View(memberBook);
         }
 
@@ -122,8 +158,7 @@ namespace LibraryApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Name", memberBook.BookId);
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "EMail", memberBook.MemberId);
+            FillDropdowns(memberBook);
             return View(memberBook);
         }
 
@@ -154,6 +189,46 @@ namespace LibraryApp.Controllers
         {
             var memberBook = await _context.MemberBooks.FindAsync(id);
             _context.MemberBooks.Remove(memberBook);
+
+            var book = await _context.Books.FindAsync(memberBook.BookId);
+            if (book != null && !memberBook.IsTakenBack)
+                book.Quantity++;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> TakeBack(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var memberBook = await _context.MemberBooks
+                .Include(m => m.Book)
+                .Include(m => m.Member)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (memberBook == null)
+            {
+                return NotFound();
+            }
+
+            return View(memberBook);
+        }
+
+        // POST: MemberBooks/Delete/5
+        [HttpPost, ActionName("TakeBack")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TakeBackConfirmed(int id)
+        {
+            var memberBook = await _context.MemberBooks.FindAsync(id);
+            memberBook.IsTakenBack = true;
+
+            var book = await _context.Books.FindAsync(memberBook.BookId);
+            if (book != null)
+                book.Quantity++;
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -161,6 +236,12 @@ namespace LibraryApp.Controllers
         private bool MemberBookExists(int id)
         {
             return _context.MemberBooks.Any(e => e.Id == id);
+        }
+
+        private void FillDropdowns(MemberBook memberBook)
+        {
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Name", memberBook.BookId);
+            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName", memberBook.MemberId);
         }
     }
 }

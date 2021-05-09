@@ -1,22 +1,28 @@
 ﻿@model IEnumerable<LibraryApp.Models.MemberBook>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Kitap Teslim Yönetimi";
 }
 
-<h1>Index</h1>
+<h4>Kitap Teslimi Yönetimi</h4>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Kitap Teslimi</a>
 </p>
+<form id="memberForm" method="get" class="col-md-4" style="padding-left:0">
+    <select class="form-control" asp-items="ViewBag.MemberId" onchange="submitForm()" name="memberId">
+        <option>Tüm Üyeler</option>
+    </select>
+</form>
+<br />
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Member)
+                @Html.DisplayNameFor(model => model.MemberId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Book)
+                @Html.DisplayNameFor(model => model.BookId)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DeliveryDate)
@@ -28,26 +34,36 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Member.EMail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Book.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeliveryDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsTakenBack)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Member.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Book.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeliveryDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsTakenBack)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Sil</a> |
+                    @if (!item.IsTakenBack)
+                    {
+                        <a asp-action="TakeBack" asp-route-id="@item.Id"> Teslim Al </a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+<script>
+    function submitForm() {
+        $("#memberForm").submit();
+    }
+</script>

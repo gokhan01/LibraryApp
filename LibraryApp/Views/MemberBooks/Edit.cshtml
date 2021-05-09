@@ -1,12 +1,11 @@
 ﻿@model LibraryApp.Models.MemberBook
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Kitap Teslim Yönetimi";
 }
 
-<h1>Edit</h1>
+<h4>Kitap Teslimi Düzenle</h4>
 
-<h4>MemberBook</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -27,21 +26,17 @@
                 <input asp-for="DeliveryDate" class="form-control" />
                 <span asp-validation-for="DeliveryDate" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsTakenBack" /> @Html.DisplayNameFor(model => model.IsTakenBack)
-                </label>
-            </div>
+            <input type="hidden" asp-for="IsTakenBack" />
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Kaydet" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Listeye dön</a>
 </div>
 
 @section Scripts {

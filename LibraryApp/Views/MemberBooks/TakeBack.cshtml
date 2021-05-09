@@ -4,7 +4,7 @@
     ViewData["Title"] = "Kitap Teslim Yönetimi";
 }
 
-<h4>Kitap Teslimi Yönetimi</h4>
+<h4>Teslim Al</h4>
 
 <div>
     <hr />
@@ -33,15 +33,11 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.DeliveryDate)
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IsTakenBack)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IsTakenBack)
-        </dd>
     </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Düzenle</a> |
-    <a asp-action="Index">Listeye dön</a>
+    
+    <form asp-action="TakeBack">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Teslim Al" class="btn btn-success" /> |
+        <a asp-action="Index">Listeye dön</a>
+    </form>
 </div>

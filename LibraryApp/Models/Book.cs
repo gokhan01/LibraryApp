@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LibraryApp.Models.Attributes;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -6,11 +7,13 @@ namespace LibraryApp.Models
 {
     public class Book : BaseEntity
     {
-        [Required, Column(TypeName = "nvarchar(255)")]
+        [CustomRequired, Column(TypeName = "nvarchar(255)"), Display(Name = "Kitap Adı")]
         public string Name { get; set; }
-        [Required]
+
+        [CustomRequired, Display(Name = "Adet")]
         public byte Quantity { get; set; }
 
+        [CustomRequired, Display(Name = "Yazar")]
         public int AuthorId { get; set; }
 
         [ForeignKey("AuthorId")]
