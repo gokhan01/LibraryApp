@@ -83,17 +83,30 @@ namespace LibraryApp.Controllers
                 if (member == null)
                     return NotFound();
 
+                var nonTakenBackBookNames = await _context.MemberBooks
+                    .Include(mb => mb.Book)
+                    .Where(mb => !mb.IsTakenBack && mb.DeliveryDate < DateTime.Now.AddDays(-15))
+                    .Select(mb => mb.Book.Name)
+                    .ToListAsync();
+
                 if (book.Quantity == 0)
                 {
-                    ModelState.AddModelError("", $"\"{book.Author.FullName} - {book.Name}\" adlı kitap mevcut değildir!");
+                    ModelState.AddModelError(string.Empty, $"\"{book.Author.FullName} - {book.Name}\" adlı kitap mevcut değildir!");
+                }
+                else if (nonTakenBackBookNames.Any())
+                {
+                    ModelState.AddModelError(string.Empty, $"\"{member.FullName}\" adlı üyenin 15 gün içerisinde teslim etmediği kitap(lar) mevcut olduğu için yeni kitap teslimi yapılamaz!{Environment.NewLine}Teslim edilmesi gereken kitap(lar):");
+
+                    foreach (var bookName in nonTakenBackBookNames)
+                        ModelState.AddModelError(string.Empty, bookName);
                 }
                 else if (member.MemberBooks.Any(mb => mb.BookId == memberBook.BookId && !mb.IsTakenBack))
                 {
-                    ModelState.AddModelError("", $"\"{member.FullName}\" kullanıcısı \"{book.Name}\" adlı kitabı daha önce teslim almıştır!");
+                    ModelState.AddModelError(string.Empty, $"\"{member.FullName}\" adlı üye \"{book.Name}\" adlı kitabı daha önce teslim almıştır!");
                 }
                 else if (member.MemberBooks.Count(b => !b.IsTakenBack) == 3)
                 {
-                    ModelState.AddModelError("", $"\"{member.FullName}\" kullanıcısı en fazla 3 adet kitap teslim alabilir!");
+                    ModelState.AddModelError(string.Empty, $"\"{member.FullName}\" adlı üye en fazla 3 adet kitap teslim alabilir!");
                 }
                 else
                 {
@@ -198,6 +211,7 @@ namespace LibraryApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: MemberBooks/TakeBack/5
         public async Task<IActionResult> TakeBack(int? id)
         {
             if (id == null)
@@ -217,7 +231,7 @@ namespace LibraryApp.Controllers
             return View(memberBook);
         }
 
-        // POST: MemberBooks/Delete/5
+        // POST: MemberBooks/TakeBack/5
         [HttpPost, ActionName("TakeBack")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TakeBackConfirmed(int id)

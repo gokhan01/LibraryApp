@@ -61,7 +61,7 @@ namespace LibraryApp.Controllers
             {
                 if (_context.Authors.Any(a => a.Name.ToLower() == author.Name.ToLower() && a.Surname.ToLower() == author.Surname.ToLower()))
                 {
-                    ModelState.AddModelError("", "Girilen yazar bilgileri mevcuttur.");
+                    ModelState.AddModelError(string.Empty, "Girilen yazar bilgileri mevcuttur.");
                     return View(author);
                 }
 
@@ -104,6 +104,11 @@ namespace LibraryApp.Controllers
             {
                 try
                 {
+                    if (_context.Authors.Any(a => a.Id != id && a.Name.ToLower() == author.Name.ToLower() && a.Surname.ToLower() == author.Surname.ToLower()))
+                    {
+                        ModelState.AddModelError(string.Empty, "Girilen yazar bilgileri mevcuttur.");
+                        return View(author);
+                    }
                     _context.Update(author);
                     await _context.SaveChangesAsync();
                 }

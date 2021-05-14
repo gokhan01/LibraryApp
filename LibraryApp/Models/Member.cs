@@ -18,6 +18,9 @@ namespace LibraryApp.Models
         [CustomRequired, Column(TypeName = "datetime2"), Display(Name = "Kayıt Tarihi")]
         public DateTime RegisterDate { get; set; }
 
+        [CustomRequired, Column(TypeName = "char(11)"), Display(Name = "T.C. Kimlik Numarası")]
+        public string IdentityNumber { get; set; }
+
         public ICollection<Book> Books { get; set; }
         public List<MemberBook> MemberBooks { get; set; }
     }

@@ -74,6 +74,10 @@ namespace LibraryApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("IdentityNumber")
+                        .IsRequired()
+                        .HasColumnType("char(11)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(255)");

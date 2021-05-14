@@ -30,6 +30,7 @@ namespace LibraryApp.Data.Migrations
                     PhoneNumber = table.Column<string>(type: "char(11)", maxLength: 11, nullable: false),
                     EMail = table.Column<string>(type: "nvarchar(255)", nullable: false),
                     RegisterDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
+                    IdentityNumber = table.Column<string>(type: "char(11)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(255)", nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(255)", nullable: false)
                 },

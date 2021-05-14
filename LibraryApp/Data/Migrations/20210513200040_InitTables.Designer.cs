@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210423184326_InitTables")]
+    [Migration("20210513200040_InitTables")]
     partial class InitTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,6 +75,10 @@ namespace LibraryApp.Data.Migrations
                     b.Property<string>("EMail")
                         .IsRequired()
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("IdentityNumber")
+                        .IsRequired()
+                        .HasColumnType("char(11)");
 
                     b.Property<string>("Name")
                         .IsRequired()

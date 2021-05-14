@@ -21,10 +21,9 @@ namespace LibraryApp
                 {
                     SeedData.Initialize(services);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    //var logger = services.GetRequiredService<ILogger<Program>>();
-                    //logger.LogError(ex, "An error occurred seeding the DB.");
+                    //log
                 }
             }
 

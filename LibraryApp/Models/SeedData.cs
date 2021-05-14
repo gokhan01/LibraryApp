@@ -84,7 +84,8 @@ namespace LibraryApp.Models
                     Name = "Gökhan",
                     Surname = "Uyar",
                     EMail = "gokhanuyar01@gmail.com",
-                    PhoneNumber = "05365254747"
+                    PhoneNumber = "05365254747",
+                    IdentityNumber = "38282083138"
                 });
                 context.SaveChanges();
             }

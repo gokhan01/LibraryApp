@@ -54,13 +54,21 @@ namespace LibraryApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PhoneNumber,EMail,RegisterDate,Name,Surname,Id")] Member member)
+        public async Task<IActionResult> Create([Bind("PhoneNumber,EMail,RegisterDate,Name,Surname,IdentityNumber,Id")] Member member)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(member);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (_context.Members.Any(m => m.IdentityNumber == member.IdentityNumber))
+                {
+                    ModelState.AddModelError(string.Empty, $"{member.IdentityNumber} T.C. kimlik numaralı üye kaydı mevcuttur.");
+                }
+                else
+                {
+                    _context.Add(member);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+
             }
             return View(member);
         }
@@ -86,7 +94,7 @@ namespace LibraryApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PhoneNumber,EMail,RegisterDate,Name,Surname,Id")] Member member)
+        public async Task<IActionResult> Edit(int id, [Bind("PhoneNumber,EMail,RegisterDate,Name,Surname,IdentityNumber,Id")] Member member)
         {
             if (id != member.Id)
             {
@@ -97,8 +105,16 @@ namespace LibraryApp.Controllers
             {
                 try
                 {
-                    _context.Update(member);
-                    await _context.SaveChangesAsync();
+                    if (_context.Members.Any(m => m.Id != id && m.IdentityNumber == member.IdentityNumber))
+                    {
+                        ModelState.AddModelError(string.Empty, $"{member.IdentityNumber} T.C. kimlik numaralı üye kaydı mevcuttur.");
+                        return View(member);
+                    }
+                    else
+                    {
+                        _context.Update(member);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
